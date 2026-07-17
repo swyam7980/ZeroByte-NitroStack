@@ -1,0 +1,35 @@
+# Docker sandbox definitions for external scanner tools + playwright runner.
+# Each tool runs in its own minimal image with egress restricted to scope.
+# NOTE: network egress restriction is enforced per-run by the Scan MCP execution
+# service (declared-target-only); the shared network here is for local dev wiring.
+
+services:
+  nuclei:
+    build: ./runners/tools/nuclei
+    image: zerobyte/nuclei:latest
+    profiles: ["tools"]
+    networks: ["sandbox"]
+
+  sqlmap:
+    build: ./runners/tools/sqlmap
+    image: zerobyte/sqlmap:latest
+    profiles: ["tools"]
+    networks: ["sandbox"]
+
+  gitleaks:
+    build: ./runners/tools/gitleaks
+    image: zerobyte/gitleaks:latest
+    profiles: ["tools"]
+    networks: ["sandbox"]
+
+  playwright:
+    build: ./runners/playwright
+    image: zerobyte/playwright:latest
+    profiles: ["runners"]
+    networks: ["sandbox"]
+    shm_size: "1gb"
+
+networks:
+  sandbox:
+    driver: bridge
+    internal: false

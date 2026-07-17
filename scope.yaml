@@ -1,0 +1,44 @@
+# scope.yaml — single source of truth for what the pentester is allowed to touch.
+# Loaded once per scan session and injected into every MCP server via DI.
+# No server trusts a target string without validating it against this file.
+
+scan_session:
+  name: "demo-scan"
+  description: "Hackathon demo target"
+
+# In-scope hosts. Wildcards allowed for subdomains.
+in_scope:
+  hosts:
+    - "example.com"
+    - "*.example.com"
+  paths:
+    - "/"
+    - "/api/*"
+
+# Explicitly excluded (takes precedence over in_scope).
+out_of_scope:
+  hosts:
+    - "payments.example.com"
+  paths:
+    - "/admin/delete/*"
+
+# Rate + safety limits enforced at the guard layer.
+limits:
+  max_requests_per_second: 10
+  max_concurrent_sessions: 3
+  request_timeout_ms: 30000
+  scan_timeout_ms: 600000
+
+# Allowed scanner profiles (model picks from these enums, never free-form args).
+allowed_tools:
+  nuclei:
+    profiles: ["default", "cves", "misconfiguration"]
+  sqlmap:
+    risk: 1
+    level: 1
+  gitleaks:
+    enabled: true
+
+# Egress policy: containers may only reach declared targets.
+network:
+  allow_egress_to_scope_only: true

@@ -1,0 +1,10 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/shared" },
+    { "path": "packages/server-kit" },
+    { "path": "servers/pentester-mcp" },
+    { "path": "servers/reporting-mcp" },
+    { "path": "backend" }
+  ]
+}

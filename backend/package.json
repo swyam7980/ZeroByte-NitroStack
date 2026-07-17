@@ -1,0 +1,25 @@
+{
+  "name": "@zerobyte/backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc -b",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@zerobyte/shared": "*",
+    "express": "^4.19.0",
+    "ws": "^8.18.0",
+    "jsonwebtoken": "^9.0.0",
+    "dotenv": "^16.4.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.0",
+    "@types/ws": "^8.5.0",
+    "@types/jsonwebtoken": "^9.0.0"
+  }
+}

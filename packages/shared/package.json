@@ -1,0 +1,22 @@
+{
+  "name": "@zerobyte/shared",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./schemas": "./dist/schemas/index.js",
+    "./attack-graph": "./dist/attack-graph/index.js",
+    "./scope": "./dist/scope/index.js"
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "dev": "tsc -b -w"
+  },
+  "dependencies": {
+    "zod": "^3.23.0",
+    "yaml": "^2.5.0"
+  }
+}
