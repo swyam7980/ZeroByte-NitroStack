@@ -1,20 +1,69 @@
-import type { ScanJob } from "./types.js";
+import type { ScanJob, ScanProfile, ReportPayload } from "./types.js";
 
-/** REST client for scan CRUD (§6). */
+/**
+ * REST client for scan CRUD (§6). Talks to the backend gateway; the Vite dev
+ * server proxies `/api` → the backend (see vite.config.ts), so these are
+ * same-origin relative paths in both dev and prod.
+ */
+
+const BASE = "/api";
+
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(`${BASE}${path}`, {
+    headers: { "content-type": "application/json", ...(init?.headers ?? {}) },
+    ...init,
+  });
+  if (!res.ok) {
+    let detail = "";
+    try {
+      detail = JSON.stringify(await res.json());
+    } catch {
+      /* non-JSON error body */
+    }
+    throw new ApiError(`${init?.method ?? "GET"} ${path} → ${res.status}`, res.status, detail);
+  }
+  return res.json() as Promise<T>;
+}
+
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+    readonly detail?: string,
+  ) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
+
+export interface StartScanInput {
+  target: string;
+  profile?: ScanProfile;
+  scopeRef?: string;
+  auth?: { bearer?: string; cookie?: string };
+}
+
 export const api = {
-  async startScan(target: string): Promise<ScanJob> {
-    const res = await fetch("/api/scans", {
+  /** Start a scan. Backend enqueues it and streams progress over WS (§5, §6). */
+  startScan(input: StartScanInput): Promise<ScanJob> {
+    return request<ScanJob>("/scans", {
       method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ target }),
+      body: JSON.stringify(input),
     });
-    if (!res.ok) throw new Error(`startScan failed: ${res.status}`);
-    return res.json();
   },
 
-  async getReport(scanId: string): Promise<{ html: string }> {
-    const res = await fetch(`/api/scans/${scanId}/report`);
-    if (!res.ok) throw new Error(`getReport failed: ${res.status}`);
-    return res.json();
+  /** List all scans this session. */
+  listScans(): Promise<{ scans: ScanJob[] }> {
+    return request<{ scans: ScanJob[] }>("/scans");
+  },
+
+  /** Fetch a single scan's status. */
+  getScan(id: string): Promise<ScanJob> {
+    return request<ScanJob>(`/scans/${encodeURIComponent(id)}`);
+  },
+
+  /** Fetch the rendered report once the scan completes (§10). */
+  getReport(id: string): Promise<ReportPayload> {
+    return request<ReportPayload>(`/scans/${encodeURIComponent(id)}/report`);
   },
 };

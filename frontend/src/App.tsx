@@ -1,31 +1,32 @@
-import { useState } from "react";
-import { api } from "./api.js";
-import { useScanSocket } from "./ws.js";
-import { ScanForm } from "./components/ScanForm.js";
-import { FindingFeed } from "./components/FindingFeed.js";
-import { ReportView } from "./components/ReportView.js";
+import { BrowserRouter, Navigate, Routes, Route } from "react-router-dom";
+import { StoreProvider } from "./lib/store.js";
+import { Layout } from "./components/Layout.js";
+import { Dashboard } from "./pages/Dashboard.js";
+import { NewScan } from "./pages/NewScan.js";
+import { Findings } from "./pages/Findings.js";
+import { Reports } from "./pages/Reports.js";
+import { Settings } from "./pages/Settings.js";
 
+/**
+ * ZeroByte dashboard — Sentinel Intelligence System design over the agentic
+ * pentester. Routes share one <StoreProvider> so the live WS scan state (§5) is
+ * consistent across Dashboard / Findings / Reports.
+ */
 export function App() {
-  const events = useScanSocket();
-  const [reportHtml, setReportHtml] = useState<string | null>(null);
-  const [scanId, setScanId] = useState<string | null>(null);
-
-  async function startScan(target: string) {
-    const job = await api.startScan(target);
-    setScanId(job.id);
-    setReportHtml(null);
-  }
-
   return (
-    <main style={{ fontFamily: "system-ui, sans-serif", maxWidth: 900, margin: "40px auto", padding: 16 }}>
-      <h1>ZeroByte — Agentic Pentester</h1>
-      <p style={{ opacity: 0.7 }}>MCP-first. Every capability is a scope-checked tool.</p>
-      <ScanForm onStart={startScan} />
-      {scanId && <p>Scan: <code>{scanId}</code></p>}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, marginTop: 24 }}>
-        <FindingFeed events={events} />
-        <ReportView html={reportHtml} />
-      </div>
-    </main>
+    <StoreProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route element={<Layout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="new-scan" element={<NewScan />} />
+            <Route path="findings" element={<Findings />} />
+            <Route path="reports" element={<Reports />} />
+            <Route path="settings" element={<Settings />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </StoreProvider>
   );
 }
