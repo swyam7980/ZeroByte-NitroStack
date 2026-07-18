@@ -28,7 +28,7 @@ export class AttackGraphStore {
       ...candidate,
       confidence: 0,
       status: "candidate",
-      discoveredAt: candidate.discoveredAt ?? "",
+      discoveredAt: (candidate as { discoveredAt?: string }).discoveredAt ?? new Date().toISOString(),
     } as Finding;
     this.findings.set(finding.id, finding);
     this.edges.push({ from: finding.asset, to: finding.id, relation: "candidate_of" });
@@ -40,6 +40,7 @@ export class AttackGraphStore {
     f.verdict = verdict;
     f.confidence = confidence;
     f.verificationTranscript = transcript;
+    f.verifiedAt = new Date().toISOString();
     f.status = verdict === "confirmed" ? "confirmed" : "unconfirmed";
     this.edges.push({ from: findingId, to: findingId, relation: "verified_as" });
   }

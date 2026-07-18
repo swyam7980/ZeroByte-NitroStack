@@ -79,7 +79,23 @@ npm run typecheck
 npm run dev:backend      # + dev:frontend, dev:servers
 ```
 
-All tool bodies are stubs — signatures and Zod schemas are wired, bodies contain
-`TODO` markers. Build inward from the schemas in `packages/shared`.
-`@nitrostack/core` is referenced at `^0.1.0`; pin to the actual published
-version at install time.
+## NitroStack deployment
+
+For the hackathon, deploy the MCP servers as separate NitroStack projects:
+
+```bash
+cd servers/pentester-mcp
+nitrostack login
+nitrostack deploy
+
+cd ../reporting-mcp
+nitrostack deploy
+```
+
+Required env vars:
+
+- `API_KEY_1` for both MCP servers
+- `ATTACK_GRAPH_URL` and `ATTACK_GRAPH_TOKEN` for shared attack-graph access
+- `SCOPE_FILE` only for the pentester server if you want a custom scope file path
+
+The repo now targets `@nitrostack/core@^1`, which matches the current NitroStack docs.

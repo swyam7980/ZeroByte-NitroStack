@@ -12,6 +12,7 @@ import { openScanSocket, type ConnectionStatus } from "../ws.js";
 import type {
   Finding,
   ProgressEvent,
+  ReportPayload,
   ScanJob,
   Severity,
   SurfaceSnapshot,
@@ -39,6 +40,8 @@ interface StoreValue {
   severityCounts: Record<Severity, number>;
   riskScore: number;
   confirmedFindings: Finding[];
+  report: ReportPayload | null;
+  reportLoading: boolean;
   startScan: (input: StartScanInput) => Promise<void>;
   startError: string | null;
   busy: boolean;
@@ -57,6 +60,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [demoMode, setDemoMode] = useState(false);
   const [startError, setStartError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [report, setReport] = useState<ReportPayload | null>(null);
+  const [reportLoading, setReportLoading] = useState(false);
 
   const jobRef = useRef<string | null>(null);
   const demoTimers = useRef<Array<ReturnType<typeof setTimeout>>>([]);
@@ -86,6 +91,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     if (evt.surface) setSurface((prev) => ({ ...(prev ?? DEMO_SURFACE), ...evt.surface } as SurfaceSnapshot));
     if (typeof evt.progress === "number") setProgress(evt.progress);
     if (evt.phase) setPhase(evt.phase);
+    if (evt.report) {
+      setReport(evt.report);
+      setReportLoading(false);
+    }
 
     if (evt.stage === "complete" || evt.status === "complete") {
       setScan((s) => (s ? { ...s, status: "complete" } : s));
@@ -107,6 +116,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setPhase("Initializing");
     setStartError(null);
     setBusy(true);
+    setReport(null);
+    setReportLoading(false);
   }
 
   /** Kick off the demo simulation for a target (backend unreachable). */
@@ -129,7 +140,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     try {
       const job = await api.startScan(input);
       setDemoMode(false);
-      resetRun({ ...job, status: job.status ?? "running" });
+      resetRun({ ...job, status: job.status === "queued" ? "running" : job.status ?? "running" });
     } catch (err) {
       // Backend not up (or endpoint still a stub) → fall back to the demo run so
       // the dashboard is populated. Surface a non-blocking note.
@@ -171,6 +182,26 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     return Math.min(100, raw);
   }, [severityCounts]);
 
+  useEffect(() => {
+    if (!scan || scan.status !== "complete" || demoMode || report) return;
+    let cancelled = false;
+    setReportLoading(true);
+    api
+      .getReport(scan.id)
+      .then((payload) => {
+        if (!cancelled) setReport(payload);
+      })
+      .catch(() => {
+        if (!cancelled) setReport(null);
+      })
+      .finally(() => {
+        if (!cancelled) setReportLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [demoMode, report, scan?.id, scan?.status]);
+
   const value: StoreValue = {
     connection,
     scan,
@@ -183,6 +214,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     severityCounts,
     riskScore,
     confirmedFindings,
+    report,
+    reportLoading,
     startScan,
     startError,
     busy,

@@ -1,4 +1,4 @@
-import { McpApp, Module } from "@nitrostack/core";
+import { ApiKeyModule, McpApp, Module } from "@nitrostack/core";
 import { ReportModule } from "./modules/report/report.module.js";
 
 /**
@@ -12,6 +12,12 @@ import { ReportModule } from "./modules/report/report.module.js";
   logging: { level: "info" },
 })
 @Module({
-  imports: [ReportModule],
+  imports: [
+    ApiKeyModule.forRoot({
+      keysEnvPrefix: "API_KEY",
+      headerName: "Authorization",
+    }),
+    ReportModule,
+  ],
 })
 export class AppModule {}

@@ -27,4 +27,14 @@ export abstract class BaseAgent {
   protected call<T = unknown>(server: string, tool: string, args: Record<string, unknown>): Promise<T> {
     return this.mcp.call<T>({ server, tool, args, requester: this.identity });
   }
+
+  /**
+   * Keep the prompt payload intentionally small so the eventual LLM-backed API
+   * call stays within a narrow context window. This agent layer should only
+   * forward the current target plus the minimum recent state needed to pick the
+   * next tool.
+   */
+  protected compact<T>(items: T[], maxItems = 6): T[] {
+    return items.slice(-maxItems);
+  }
 }

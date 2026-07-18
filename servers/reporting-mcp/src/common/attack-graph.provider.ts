@@ -1,14 +1,19 @@
 import { Injectable } from "@nitrostack/core";
-import type { AttackGraphClient } from "@zerobyte/shared";
+import { createAttackGraphClient, type AttackGraphClient } from "@zerobyte/shared";
 
 /**
- * Read-only Attack Graph client for Reporting MCP (§2.2). Reads ONLY confirmed
- * findings — the report-rendering path literally cannot reach a live target.
+ * Read-focused Attack Graph client for Reporting MCP (§2.2). Reads only confirmed
+ * findings — the report-rendering path holds no Docker/network/browser privilege
+ * and literally cannot reach a live target.
+ *
+ * Deployed: HTTP client to the backend store (set ATTACK_GRAPH_URL). Standalone:
+ * in-process store (will only see findings written by this same process).
  */
 @Injectable()
 export class AttackGraphProvider {
-  // TODO: construct the real HTTP-backed AttackGraphClient (read-only creds).
-  get client(): AttackGraphClient {
-    throw new Error("AttackGraphClient not wired — inject backend store URL");
+  readonly client: AttackGraphClient;
+
+  constructor() {
+    this.client = createAttackGraphClient();
   }
 }
