@@ -28,7 +28,7 @@ export class AttackGraphStore {
       ...candidate,
       confidence: 0,
       status: "candidate",
-      discoveredAt: candidate.discoveredAt ?? "",
+      discoveredAt: new Date().toISOString(),
     } as Finding;
     this.findings.set(finding.id, finding);
     this.edges.push({ from: finding.asset, to: finding.id, relation: "candidate_of" });

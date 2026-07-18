@@ -24,6 +24,9 @@ function main(): void {
   const app = express();
   app.use(express.json());
   app.get("/health", (_req, res) => res.json({ ok: true, scope: scope.scan_session.name }));
+  app.get("/nitrochat", (_req, res) => {
+    res.redirect(process.env.FRONTEND_URL ?? "http://127.0.0.1:3000/nitrochat");
+  });
   app.use("/api", scanRoutes(queue));
 
   const server = createServer(app);

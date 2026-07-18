@@ -22,11 +22,15 @@ export class McpClient {
 
   /** Discover available tools from the NitroStack registry rather than hardcoding. */
   async listTools(_server: string): Promise<string[]> {
+    void this.gatewayUrl;
+    void this.apiKey;
     // TODO: GET {gateway}/registry/{server}/tools
     throw new Error("not implemented");
   }
 
   async call<T = unknown>(_opts: McpCallOptions): Promise<T> {
+    void this.gatewayUrl;
+    void this.apiKey;
     // TODO: POST to gateway with scanSessionId + scope context + auth header.
     throw new Error("not implemented");
   }

@@ -5,6 +5,7 @@ const NAV = [
   { to: "/", label: "Dashboard", icon: "dashboard", end: true },
   { to: "/findings", label: "Findings", icon: "security" },
   { to: "/reports", label: "Reports", icon: "description" },
+  { to: "/nitrochat", label: "NitroChat", icon: "chat" },
   { to: "/settings", label: "Settings", icon: "settings" },
 ];
 

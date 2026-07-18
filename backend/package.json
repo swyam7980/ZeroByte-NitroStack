@@ -10,16 +10,19 @@
     "start": "node dist/index.js"
   },
   "dependencies": {
-    "@zerobyte/shared": "*",
-    "express": "^4.19.0",
-    "ws": "^8.18.0",
-    "jsonwebtoken": "^9.0.0",
+    "@zerobyte/shared": "file:../packages/shared",
     "dotenv": "^16.4.0",
+    "express": "^4.19.0",
+    "jsonwebtoken": "^9.0.0",
+    "ws": "^8.18.0",
     "zod": "^3.23.0"
   },
   "devDependencies": {
-    "@types/express": "^4.17.0",
-    "@types/ws": "^8.5.0",
-    "@types/jsonwebtoken": "^9.0.0"
+    "@types/express": "^4.17.25",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^26.1.1",
+    "@types/ws": "^8.18.1",
+    "tsx": "^4.23.1",
+    "typescript": "^7.0.2"
   }
 }

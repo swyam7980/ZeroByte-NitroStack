@@ -17,6 +17,7 @@ export class ScanQueue {
   constructor(private readonly orchestratorFactory: (scanSessionId: string) => OrchestratorAgent) {}
 
   enqueue(_target: string, _onProgress: (jobId: string, p: ScanProgress) => void): ScanJob {
+    void this.orchestratorFactory;
     // TODO: create job, open MCP session, run orchestrator, emit progress.
     throw new Error("not implemented");
   }

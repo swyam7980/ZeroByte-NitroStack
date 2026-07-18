@@ -40,6 +40,7 @@ export class OrchestratorAgent extends BaseAgent {
    * Reporting → mark complete.
    */
   async runScan(_target: string, _onProgress: (p: ScanProgress) => void): Promise<void> {
+    void this.agents;
     // TODO: reconExploitation.run(asset) → per-candidate verification.run(id) →
     //       reporting.run(scanSessionId); retry policy; mark complete.
     throw new Error("not implemented");
