@@ -1,6 +1,7 @@
 {
   "files": [],
   "references": [
+    { "path": "packages/core" },
     { "path": "packages/shared" },
     { "path": "packages/server-kit" },
     { "path": "servers/pentester-mcp" },

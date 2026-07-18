@@ -11,6 +11,6 @@
   },
   "dependencies": {
     "@zerobyte/shared": "*",
-    "@nitrostack/core": "^0.1.0"
+    "@nitrostack/core": "*"
   }
 }
