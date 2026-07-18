@@ -7,11 +7,30 @@ export interface SocketHandle {
 }
 
 /**
+ * Derive the WebSocket URL from the API base so it works in both local dev
+ * (same-origin /ws proxied by Vite) and on Vercel (cross-origin backend).
+ */
+function wsUrl(): string {
+  const apiBase = (import.meta.env.VITE_API_URL as string | undefined) ?? "";
+  if (apiBase) {
+    // Cross-origin: replace https:// → wss://
+    return apiBase.replace(/^http/, "ws") + "/ws";
+  }
+  // Same-origin (local dev with Vite proxy)
+  const proto = location.protocol === "https:" ? "wss" : "ws";
+  return `${proto}://${location.host}/ws`;
+}
+
+/**
  * Open a resilient connection to the backend WS gateway (§5, §6).
  *
  * Plain (non-hook) helper so the app store can own a single socket. Auto-
  * reconnects with capped backoff; surfaces connection state and every parsed
  * `ProgressEvent`. Malformed frames are ignored.
+ *
+ * NOTE: WebSockets do not work on Vercel serverless. This client will
+ * gracefully retry and remain in a "connecting" state — the app should
+ * fall back to polling when the socket never opens.
  */
 export function openScanSocket(
   onEvent: (e: ProgressEvent) => void,
@@ -23,10 +42,9 @@ export function openScanSocket(
   let retryTimer: ReturnType<typeof setTimeout> | undefined;
 
   function connect() {
-    const proto = location.protocol === "https:" ? "wss" : "ws";
     onStatus("connecting");
     try {
-      ws = new WebSocket(`${proto}://${location.host}/ws`);
+      ws = new WebSocket(wsUrl());
     } catch {
       scheduleRetry();
       return;
