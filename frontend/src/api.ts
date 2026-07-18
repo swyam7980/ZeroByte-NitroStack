@@ -1,12 +1,12 @@
 import type { ScanJob, ScanProfile, ReportPayload } from "./types.js";
 
 /**
- * REST client for scan CRUD (§6). Talks to the backend gateway; the Vite dev
- * server proxies `/api` → the backend (see vite.config.ts), so these are
- * same-origin relative paths in both dev and prod.
+ * REST client for scan CRUD (§6). In local dev the Vite proxy forwards /api
+ * to the backend. On Vercel (separate projects) set VITE_API_URL to the
+ * backend's full URL (e.g. https://backend.vercel.app).
  */
 
-const BASE = "/api";
+const BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? "/api";
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
